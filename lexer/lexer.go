@@ -47,22 +47,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
-	case '=':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			tok = token.Token{Type: token.EQ, Literal: string(ch) + string(l.ch)}
-		} else {
-			tok = newToken(token.ASSIGN, l.ch)
-		}
-	case '!':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			tok = token.Token{Type: token.NOT_EQ, Literal: string(ch) + string(l.ch)}
-		} else {
-			tok = newToken(token.BANG, l.ch)
-		}
+	case '=', '!':
+		tok = l.readEqualityToken()
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -129,4 +115,28 @@ func (l *Lexer) peekChar() byte {
 	} else {
 		return l.input[l.readPosition]
 	}
+}
+
+func (l *Lexer) readEqualityToken() token.Token {
+	var tok token.Token
+	if l.peekChar() == '=' {
+		var tokenType token.TokenType
+		if l.ch == '=' {
+			tokenType = token.EQ
+		} else {
+			tokenType = token.NOT_EQ
+		}
+		ch := l.ch
+		l.readChar()
+		tok = token.Token{Type: tokenType, Literal: string(ch) + string(l.ch)}
+	} else {
+		var tokenType token.TokenType
+		if l.ch == '=' {
+			tokenType = token.ASSIGN
+		} else {
+			tokenType = token.BANG
+		}
+		tok = newToken(tokenType, l.ch)
+	}
+	return tok
 }
