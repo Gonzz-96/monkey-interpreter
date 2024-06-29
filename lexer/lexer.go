@@ -2,6 +2,8 @@ package lexer
 
 import "monkey/token"
 
+type elementPredicate func(byte) bool
+
 type Lexer struct {
 	input        string
 	position     int
@@ -42,11 +44,11 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if isLetter(l.ch) {
-			tok.Literal = l.readIdentifier()
+			tok.Literal = l.readElement(isLetter)
 			tok.Type = token.LookupIndent(tok.Literal)
 			return tok
 		} else if isDigit(l.ch) {
-			tok.Literal = l.readNumber()
+			tok.Literal = l.readElement(isDigit)
 			tok.Type = token.INT
 			return tok
 		} else {
@@ -71,17 +73,9 @@ func newToken(tokenType token.TokenType, ch byte) token.Token {
 	}
 }
 
-func (l *Lexer) readIdentifier() string {
+func (l *Lexer) readElement(isElement elementPredicate) string {
 	position := l.position
-	for isLetter(l.ch) {
-		l.readChar()
-	}
-	return l.input[position:l.position]
-}
-
-func (l *Lexer) readNumber() string {
-	position := l.position
-	for isDigit(l.ch) {
+	for isElement(l.ch) {
 		l.readChar()
 	}
 	return l.input[position:l.position]
