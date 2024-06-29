@@ -41,7 +41,7 @@ func TestNextToken(t *testing.T) {
 	}
 }
 
-func TestNextTokenMoreComplex(t *testing.T) {
+func TestNextTokenWithIdentifiersAndNumber(t *testing.T) {
 	input := `let five = 5;
 let ten = 10;
 
